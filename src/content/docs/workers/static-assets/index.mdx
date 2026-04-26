@@ -1,204 +1,1066 @@
----
-pcx_content_type: navigation
-title: Static Assets
-sidebar:
-  order: 11
-head: []
-description: Create full-stack applications deployed to Cloudflare Workers.
-products:
-  - workers
----
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3Commander - 掌控数字未来</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-purple: #bc13fe;
+            --neon-green: #39ff14;
+            --neon-pink: #ff00ff;
+            --dark-bg: #050510;
+            --card-bg: rgba(10, 10, 30, 0.8);
+            --border-glow: rgba(0, 240, 255, 0.3);
+        }
 
-import {
-	Aside,
-	Badge,
-	Card,
-	CardGrid,
-	Details,
-	Description,
-	InlineBadge,
-	Icon,
-	Render,
-	TabItem,
-	Tabs,
-	Feature,
-	LinkButton,
-	LinkCard,
-	Stream,
-	Flex,
-	WranglerConfig,
-	Steps,
-	PackageManagers,
-} from "~/components";
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-You can upload static assets (HTML, CSS, images and other files) as part of your Worker, and Cloudflare will handle caching and serving them to web browsers.
+        body {
+            background: var(--dark-bg);
+            color: #fff;
+            font-family: 'Noto Sans SC', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
 
-**Start from CLI** - Scaffold a React SPA with an API Worker, and use the [Cloudflare Vite plugin](/workers/vite-plugin/).
+        /* 动态背景粒子 */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-<PackageManagers
-	type="create"
-	pkg="cloudflare@latest"
-	args="my-react-app --framework=react"
-/>
----
+        /* 扫描线效果 */
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 240, 255, 0.03) 2px,
+                rgba(0, 240, 255, 0.03) 4px
+            );
+            z-index: 1;
+            pointer-events: none;
+        }
 
-**Or just deploy to Cloudflare**
+        /* 导航栏 */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(5, 5, 16, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glow);
+        }
 
-[![Deploy to Workers](https://deploy.workers.cloudflare.com/button)](https://dash.cloudflare.com/?to=/:account/workers-and-pages/create/deploy-to-workers&repository=https://github.com/cloudflare/templates/tree/main/vite-react-template)
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
+            letter-spacing: 2px;
+        }
 
-Learn more about supported frameworks on Workers.
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
 
-<LinkCard
-	title="Supported frameworks"
-	href="/workers/framework-guides/"
-	description="Start building on Workers with our framework guides."
-/>
+        .nav-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            position: relative;
+        }
 
-### How it works
+        .nav-links a:hover {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 15px var(--neon-cyan);
+        }
 
-When you deploy your project, Cloudflare deploys both your Worker code and your static assets in a single operation. This deployment operates as a tightly integrated "unit" running across Cloudflare's network, combining static file hosting, custom logic, and global caching.
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-cyan);
+            transition: width 0.3s;
+        }
 
-The **assets directory** specified in your [Wrangler configuration file](/workers/wrangler/configuration/#assets) is central to this design. During deployment, Wrangler automatically uploads the files from this directory to Cloudflare's infrastructure. Once deployed, requests for these assets are routed efficiently to locations closest to your users.
+        .nav-links a:hover::after {
+            width: 100%;
+        }
 
-<WranglerConfig>
+        /* 主视觉区 */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+            z-index: 2;
+        }
 
-    ```jsonc
-    {
-      "$schema": "./node_modules/wrangler/config-schema.json",
-      "name": "my-spa",
-      "main": "src/index.js",
-      "compatibility_date": "$today",
-      "assets": {
-        "directory": "./dist",
-        "binding": "ASSETS"
-      }
-    }
-    ```
+        .hero-content {
+            max-width: 900px;
+        }
 
-</WranglerConfig>
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 24px;
+            border: 1px solid var(--neon-cyan);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            margin-bottom: 30px;
+            animation: pulse-border 2s infinite;
+        }
 
-:::note
-If you are using the [Cloudflare Vite plugin](/workers/vite-plugin/), you do not need to specify `assets.directory`. For more information about using static assets with the Vite plugin, refer to the [plugin documentation](/workers/vite-plugin/reference/static-assets/).
-:::
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(0, 240, 255, 0.6); }
+        }
 
-By adding an [**assets binding**](/workers/static-assets/binding/#binding), you can directly fetch and serve assets within your Worker code.
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-cyan) 50%, var(--neon-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px rgba(0, 240, 255, 0.3);
+        }
 
-<Tabs> <TabItem label="JavaScript" icon="seti:javascript">
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.6);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
 
-```js {13}
-// index.js
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-export default {
-	async fetch(request, env) {
-		const url = new URL(request.url);
+        .btn {
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
 
-		if (url.pathname.startsWith("/api/")) {
-			return new Response(JSON.stringify({ name: "Cloudflare" }), {
-				headers: { "Content-Type": "application/json" },
-			});
-		}
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+        }
 
-		return env.ASSETS.fetch(request);
-	},
-};
-```
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 240, 255, 0.6);
+        }
 
-</TabItem> <TabItem label="Python" icon="seti:python">
+        .btn-secondary {
+            background: transparent;
+            color: var(--neon-cyan);
+            border: 2px solid var(--neon-cyan);
+        }
 
-```python
-from workers import WorkerEntrypoint, Response
-from urllib.parse import urlparse
+        .btn-secondary:hover {
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+        }
 
-class Default(WorkerEntrypoint):
-	async def fetch(self, request):
-		# Example of serving static assets
-		url = urlparse(request.url)
-		if url.path.startswith("/api/):
-			return Response.json({"name": "Cloudflare"})
+        /* 域名价值展示 */
+        .domain-value {
+            padding: 100px 50px;
+            position: relative;
+            z-index: 2;
+        }
 
-		return await self.env.ASSETS.fetch(request)
-```
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
 
-</TabItem></Tabs>
+        .section-title h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-### Routing behavior
+        .section-title p {
+            color: rgba(255,255,255,0.5);
+            font-size: 1.1rem;
+        }
 
-By default, if a requested URL matches a file in the static assets directory, that file will be served — without invoking Worker code. If no matching asset is found and a Worker script is present, the request will be processed by the Worker. The Worker can return a response or choose to defer again to static assets by using the [assets binding](/workers/static-assets/binding/) (e.g. `env.ASSETS.fetch(request)`). If no Worker script is present, a `404 Not Found` response is returned.
+        .domain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-The default behavior for requests which don't match a static asset can be changed by setting the [`not_found_handling` option under `assets`](/workers/wrangler/configuration/#assets) in your Wrangler configuration file:
+        .domain-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s;
+            backdrop-filter: blur(10px);
+        }
 
-- [`not_found_handling = "single-page-application"`](/workers/static-assets/routing/single-page-application/): Sets your application to return a `200 OK` response with `index.html` for requests which don't match a static asset. Use this if you have a Single Page Application. We recommend pairing this with selective routing using `run_worker_first` for [advanced routing control](/workers/static-assets/routing/single-page-application/#advanced-routing-control).
-- [`not_found_handling = "404-page"`](/workers/static-assets/routing/static-site-generation/#custom-404-pages): Sets your application to return a `404 Not Found` response with the nearest `404.html` for requests which don't match a static asset.
+        .domain-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-green));
+            border-radius: 16px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
 
-<WranglerConfig>
+        .domain-card:hover::before {
+            opacity: 0.3;
+        }
 
-    ```jsonc
-    {
-      "assets": {
-        "directory": "./dist",
-        "not_found_handling": "single-page-application"
-      }
-    }
-    ```
+        .domain-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 20px 60px rgba(0, 240, 255, 0.15);
+        }
 
-</WranglerConfig>
+        .domain-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
 
-If you want the Worker code to execute before serving assets, you can use the `run_worker_first` option. This can be set to `true` to invoke the Worker script for all requests, or configured as an array of route patterns for selective Worker-script-first routing:
+        .domain-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--neon-cyan);
+        }
 
-**Invoking your Worker script on specific paths:**
+        .domain-card p {
+            color: rgba(255,255,255,0.6);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
 
-<WranglerConfig>
+        .domain-price {
+            margin-top: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+        }
 
-```json
-{
-	"name": "my-spa-worker",
-	"compatibility_date": "$today",
-	"main": "./src/index.ts",
-	"assets": {
-		"directory": "./dist/",
-		"not_found_handling": "single-page-application",
-		"binding": "ASSETS",
-		"run_worker_first": ["/api/*", "!/api/docs/*"]
-	}
-}
-```
+        /* 每日热门话题区 */
+        .hot-topics {
+            padding: 100px 50px;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 240, 255, 0.03) 50%, transparent 100%);
+            position: relative;
+            z-index: 2;
+        }
 
-</WranglerConfig>
+        .topics-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-For a more advanced pattern, refer to [SPA shell with bootstrap data](/workers/examples/spa-shell/), which uses HTMLRewriter to inject prefetched API data into the HTML stream.
+        .topics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
 
-<LinkCard
-	title="Routing options"
-	href="/workers/static-assets/routing/"
-	description="Learn more about how you can customize routing behavior."
-/>
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--neon-green);
+            font-size: 0.9rem;
+        }
 
-### Caching behavior
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+            box-shadow: 0 0 10px var(--neon-green);
+        }
 
-Cloudflare provides automatic caching for static assets across its network, ensuring fast delivery to users worldwide. When a static asset is requested, it is automatically cached for future requests.
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
-- **First Request:** When an asset is requested for the first time, it is fetched from storage and cached at the nearest Cloudflare location.
+        .update-time {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+        }
 
-- **Subsequent Requests:** If a request for the same asset reaches a data center that does not have it cached, Cloudflare's [tiered caching system](/cache/how-to/tiered-cache/) allows it to be retrieved from a nearby cache rather than going back to storage. This improves cache hit ratio, reduces latency, and reduces unnecessary origin fetches.
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
 
-## Try it out
+        .topic-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 30px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
 
-<LinkCard
-	title="Vite + React SPA tutorial"
-	href="/workers/vite-plugin/tutorial/"
-	description="Learn how to build and deploy a full-stack Single Page Application with static assets and API routes."
-/>
+        .topic-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
 
-## Learn more
+        .topic-card:hover::after {
+            opacity: 1;
+        }
 
-<LinkCard
-	title="Supported frameworks"
-	href="/workers/framework-guides/"
-	description="Start building on Workers with our framework guides."
-/>
+        .topic-card:hover {
+            border-color: rgba(0, 240, 255, 0.3);
+            transform: translateX(5px);
+        }
 
-<LinkCard
-	title="Billing and limitations"
-	href="/workers/static-assets/billing-and-limitations/"
-	description="Learn more about how requests are billed, current limitations, and troubleshooting."
-/>
+        .topic-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tag-defi { background: rgba(0, 240, 255, 0.15); color: var(--neon-cyan); }
+        .tag-rwa { background: rgba(188, 19, 254, 0.15); color: var(--neon-purple); }
+        .tag-ai { background: rgba(57, 255, 20, 0.15); color: var(--neon-green); }
+        .tag-nft { background: rgba(255, 0, 255, 0.15); color: var(--neon-pink); }
+        .tag-regulation { background: rgba(255, 165, 0, 0.15); color: #ffa500; }
+
+        .topic-card h4 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        .topic-card .topic-desc {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .topic-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .topic-heat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .heat-bar {
+            width: 60px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .heat-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+        }
+
+        /* 数据仪表盘 */
+        .dashboard {
+            padding: 100px 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 35px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .stat-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.95rem;
+        }
+
+        .stat-change {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .stat-up { color: var(--neon-green); }
+        .stat-down { color: #ff4444; }
+
+        /* 跑马灯 */
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid var(--border-glow);
+            border-bottom: 1px solid var(--border-glow);
+            padding: 15px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .ticker-item {
+            display: inline-block;
+            padding: 0 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--neon-cyan);
+        }
+
+        .ticker-item span {
+            color: var(--neon-green);
+            margin-left: 10px;
+        }
+
+        /* 页脚 */
+        footer {
+            padding: 60px 50px 30px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--neon-cyan);
+        }
+
+        .copyright {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+        }
+
+        /* 滚动动画 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .hero {
+                padding: 100px 20px 60px;
+            }
+            .domain-value, .hot-topics, .dashboard {
+                padding: 60px 20px;
+            }
+            .topics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 加载动画 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0, 240, 255, 0.1);
+            border-top-color: var(--neon-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载画面 -->
+    <div class="loading-screen" id="loader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- 粒子背景 -->
+    <canvas id="particles-canvas"></canvas>
+    <div class="scanline"></div>
+
+    <!-- 导航 -->
+    <nav>
+        <div class="logo">WEB3COMMANDER</div>
+        <ul class="nav-links">
+            <li><a href="#home">首页</a></li>
+            <li><a href="#domains">域名价值</a></li>
+            <li><a href="#topics">热门话题</a></li>
+            <li><a href="#data">数据洞察</a></li>
+            <li><a href="#contact">联系我们</a></li>
+        </ul>
+    </nav>
+
+    <!-- 主视觉 -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-badge">🔒 安全 · 去中心化 · 永不过期</div>
+            <h1>Web3Commander.com</h1>
+            <p>在Web3时代，你的域名就是你的数字身份。一个顶级域名，等于一张通往未来的通行证。掌控数字主权，从拥有Web3Commander开始。</p>
+            <div class="hero-buttons">
+                <a href="#domains" class="btn btn-primary">探索域名价值</a>
+                <a href="#topics" class="btn btn-secondary">查看今日热点</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 跑马灯 -->
+    <div class="ticker-wrap">
+        <div class="ticker" id="ticker">
+            <span class="ticker-item">BTC <span>+2.4%</span></span>
+            <span class="ticker-item">ETH <span>+1.8%</span></span>
+            <span class="ticker-item">SOL <span>+5.2%</span></span>
+            <span class="ticker-item">DeFAI <span>TRENDING</span></span>
+            <span class="ticker-item">RWA <span>+12%</span></span>
+            <span class="ticker-item">稳定币 <span>HOT</span></span>
+            <span class="ticker-item">预测市场 <span>NEW</span></span>
+            <span class="ticker-item">KYA <span>2026</span></span>
+            <span class="ticker-item">BTC <span>+2.4%</span></span>
+            <span class="ticker-item">ETH <span>+1.8%</span></span>
+            <span class="ticker-item">SOL <span>+5.2%</span></span>
+            <span class="ticker-item">DeFAI <span>TRENDING</span></span>
+            <span class="ticker-item">RWA <span>+12%</span></span>
+            <span class="ticker-item">稳定币 <span>HOT</span></span>
+            <span class="ticker-item">预测市场 <span>NEW</span></span>
+            <span class="ticker-item">KYA <span>2026</span></span>
+        </div>
+    </div>
+
+    <!-- 域名价值 -->
+    <section class="domain-value" id="domains">
+        <div class="section-title fade-in">
+            <h2>域名资产价值</h2>
+            <p>Web3Commander.com — 稀缺性、品牌力与未来的交汇点</p>
+        </div>
+        <div class="domain-grid">
+            <div class="domain-card fade-in">
+                <div class="domain-icon">🎯</div>
+                <h3>品牌权威性</h3>
+                <p>"Commander"传递领导力与掌控感，在Web3领域具有极强的品牌辨识度。简短有力的组合，易于记忆与传播。</p>
+                <div class="domain-price">价值指数: ★★★★★</div>
+            </div>
+            <div class="domain-card fade-in">
+                <div class="domain-icon">🔐</div>
+                <h3>数字主权</h3>
+                <p>在中心化平台频繁封禁的时代，拥有独立域名等于拥有不可剥夺的数字领土。Web3Commander.com 是你的永久数字资产。</p>
+                <div class="domain-price">稀缺等级: S级</div>
+            </div>
+            <div class="domain-card fade-in">
+                <div class="domain-icon">🚀</div>
+                <h3>SEO与流量</h3>
+                <p>包含高价值关键词"Web3"，天然具备搜索引擎优势。预估年自然流量价值超过百万级曝光。</p>
+                <div class="domain-price">流量潜力: 极高</div>
+            </div>
+            <div class="domain-card fade-in">
+                <div class="domain-icon">💎</div>
+                <h3>投资增值</h3>
+                <p>优质.com域名年均增值15-30%。随着Web3生态扩张，品牌级域名将成为最稀缺的数字不动产。</p>
+                <div class="domain-price">增值预期: 300%+</div>
+            </div>
+            <div class="domain-card fade-in">
+                <div class="domain-icon">🌐</div>
+                <h3>全球通用</h3>
+                <p>.com是全球认知度最高的顶级域名，无国界限制。Web3Commander.com 天然具备国际化品牌基因。</p>
+                <div class="domain-price">全球覆盖: 100%</div>
+            </div>
+            <div class="domain-card fade-in">
+                <div class="domain-icon">⚡</div>
+                <h3>生态入口</h3>
+                <p>可作为Web3教育平台、DAO治理中心、DeFi聚合器或NFT市场的核心入口域名，生态价值无限延展。</p>
+                <div class="domain-price">生态位: 核心</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 每日热门话题 -->
+    <section class="hot-topics" id="topics">
+        <div class="topics-container">
+            <div class="topics-header fade-in">
+                <div class="section-title" style="margin-bottom:0;text-align:left;">
+                    <h2>每日Web3热门话题</h2>
+                    <p>AI智能抓取全网Web3动态，每日自动更新</p>
+                </div>
+                <div style="text-align:right;">
+                    <div class="live-indicator">
+                        <div class="live-dot"></div>
+                        <span>实时更新中</span>
+                    </div>
+                    <div class="update-time" id="updateTime">最后更新: 加载中...</div>
+                </div>
+            </div>
+            <div class="topics-grid" id="topicsGrid">
+                <!-- 话题卡片由JS动态生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据仪表盘 -->
+    <section class="dashboard" id="data">
+        <div class="section-title fade-in">
+            <h2>Web3生态数据</h2>
+            <p>实时追踪行业脉搏</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card fade-in">
+                <div class="stat-number" id="statDomains">2.4M+</div>
+                <div class="stat-label">Web3域名注册量</div>
+                <div class="stat-change stat-up">↑ 18.5% 本月</div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-number" id="statTVL">$89B</div>
+                <div class="stat-label">DeFi总锁仓价值</div>
+                <div class="stat-change stat-up">↑ 5.2% 本周</div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-number" id="statRWA">$16T</div>
+                <div class="stat-label">RWA预测市场规模(2030)</div>
+                <div class="stat-change stat-up">↑ 爆发增长</div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-number" id="statUsers">580M</div>
+                <div class="stat-label">全球Web3用户</div>
+                <div class="stat-change stat-up">↑ 23% 本年</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer id="contact">
+        <div class="footer-logo">WEB3COMMANDER</div>
+        <div class="footer-links">
+            <a href="#">关于我们</a>
+            <a href="#">域名交易</a>
+            <a href="#">合作伙伴</a>
+            <a href="#">隐私政策</a>
+            <a href="#">联系邮箱</a>
+        </div>
+        <div class="copyright">
+            © 2026 Web3Commander.com. All rights reserved. | 掌控数字未来
+        </div>
+    </footer>
+
+    <script>
+        // ============ 粒子背景 ============
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouseX = 0, mouseY = 0;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 240, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 100; i++) particles.push(new Particle());
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            // 连线
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 240, 255, ${0.1 * (1 - dist / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ============ 每日热门话题数据 (模拟每日自动生成) ============
+        // 基于2026年4月真实Web3热点
+        const dailyTopics = [
+            {
+                tag: 'defi',
+                tagText: 'DeFAI',
+                title: 'DeFAI成为2026年度最热赛道：AI驱动的去中心化金融',
+                desc: '去中心化人工智能（DeFAI）成为年度热点话题，AI智能体正在重塑DeFi的交互方式，自动化策略和智能合约审计成为新风口。',
+                source: 'a16z Crypto',
+                time: '2小时前',
+                heat: 95
+            },
+            {
+                tag: 'rwa',
+                tagText: 'RWA',
+                title: '现实世界资产代币化(RWA)市场规模突破新高',
+                desc: '波士顿咨询预测2030年全球RWA市场规模将突破16万亿美元。蓝港互动等上市公司加速布局RWA业务，港股大涨。',
+                source: 'BCG Report',
+                time: '4小时前',
+                heat: 88
+            },
+            {
+                tag: 'ai',
+                tagText: 'AI+Web3',
+                title: '从KYC到KYA：智能体时代的身份认证革命',
+                desc: 'a16z提出KYA（Know Your Agent）概念，AI智能体需要可验证的加密身份凭证，区块链成为AI协作的基础设施。',
+                source: 'a16z Crypto',
+                time: '6小时前',
+                heat: 92
+            },
+            {
+                tag: 'regulation',
+                tagText: '监管',
+                title: '香港Web3嘉年华：股币联动合规共生',
+                desc: '2026香港Web3嘉年华成功举办，德勤、新火集团、华夏基金共同探讨香港数字金融发展，行业进入常态化运营阶段。',
+                source: '新浪财经',
+                time: '8小时前',
+                heat: 85
+            },
+            {
+                tag: 'defi',
+                tagText: '稳定币',
+                title: '稳定币跨境支付突破：数字人民币CIPS正式上线',
+                desc: 'Tether扩展至Kaia链推动亚洲Web3普及，数字人民币跨境支付系统CIPS增强全球竞争力，稳定币成为跨境支付新基建。',
+                source: '行业观察',
+                time: '12小时前',
+                heat: 80
+            },
+            {
+                tag: 'nft',
+                tagText: '预测市场',
+                title: '预测市场成为Web3新宠：从体育到金融全面覆盖',
+                desc: '预测市场涵盖美联储利率决策、美国大选、NFL比赛、好莱坞票房等，Yahoo等主流门户提供行情查询，用户参与度激增。',
+                source: '市场分析',
+                time: '1天前',
+                heat: 78
+            },
+            {
+                tag: 'ai',
+                tagText: '基础设施',
+                title: 'LayerZero OFT MCP Server：AI工程师的区块链多链工具',
+                desc: 'AI智能体通过MCP协议获得区块链钱包能力，实现跨链资产管理和代币发行，AI原生金融应用时代来临。',
+                source: 'Skywork AI',
+                time: '1天前',
+                heat: 75
+            },
+            {
+                tag: 'regulation',
+                tagText: '政策',
+                title: '比特币战略储备成新兴趋势：多国纳入储备资产',
+                desc: '巴基斯坦、乌克兰等国家将比特币纳入储备资产，跨境电商企业启动比特币储备战略，加密货币资产配置重要性提升。',
+                source: '行业报告',
+                time: '2天前',
+                heat: 82
+            }
+        ];
+
+        function renderTopics() {
+            const grid = document.getElementById('topicsGrid');
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit'
+            });
+            document.getElementById('updateTime').textContent = `最后更新: ${timeStr}`;
+
+            grid.innerHTML = dailyTopics.map((topic, index) => `
+                <div class="topic-card fade-in" style="animation-delay: ${index * 0.1}s">
+                    <span class="topic-tag tag-${topic.tag}">${topic.tagText}</span>
+                    <h4>${topic.title}</h4>
+                    <p class="topic-desc">${topic.desc}</p>
+                    <div class="topic-meta">
+                        <span>${topic.source} · ${topic.time}</span>
+                        <div class="topic-heat">
+                            <span>热度</span>
+                            <div class="heat-bar">
+                                <div class="heat-fill" style="width: ${topic.heat}%"></div>
+                            </div>
+                            <span>${topic.heat}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 重新触发滚动动画
+            setTimeout(() => {
+                document.querySelectorAll('.topic-card').forEach(el => {
+                    el.classList.add('visible');
+                });
+            }, 100);
+        }
+
+        // ============ 数字滚动动画 ============
+        function animateNumber(element, target, suffix = '') {
+            const num = parseFloat(target.replace(/[^0-9.]/g, ''));
+            const prefix = target.replace(/[0-9.]/g, '');
+            let current = 0;
+            const increment = num / 60;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= num) {
+                    current = num;
+                    clearInterval(timer);
+                }
+                element.textContent = prefix + current.toFixed(1).replace(/\.0$/, '') + suffix;
+            }, 30);
+        }
+
+        // ============ 滚动显示动画 ============
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // ============ 初始化 ============
+        window.addEventListener('load', () => {
+            // 隐藏加载画面
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 800);
+
+            // 渲染话题
+            renderTopics();
+
+            // 观察滚动元素
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+            // 数字动画
+            setTimeout(() => {
+                animateNumber(document.getElementById('statDomains'), '2.4', 'M+');
+                animateNumber(document.getElementById('statTVL'), '89', 'B');
+                animateNumber(document.getElementById('statRWA'), '16', 'T');
+                animateNumber(document.getElementById('statUsers'), '580', 'M');
+            }, 1500);
+        });
+
+        // ============ 平滑滚动 ============
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // ============ 每日自动更新话题 (模拟) ============
+        // 实际部署时可接入API自动抓取
+        setInterval(() => {
+            // 模拟热度波动
+            dailyTopics.forEach(t => {
+                t.heat = Math.min(100, Math.max(60, t.heat + (Math.random() - 0.5) * 5));
+            });
+            dailyTopics.sort((a, b) => b.heat - a.heat);
+            renderTopics();
+        }, 30000); // 每30秒刷新一次热度显示
+    </script>
+</body>
+</html>
